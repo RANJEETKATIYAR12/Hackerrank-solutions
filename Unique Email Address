@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Helper function: normalize email
+char* normalizeEmail(const char* email) {
+    const char* at = strchr(email, '@');       
+    int localLen = at - email;
+    const char* domain = at + 1;
+
+    char* local = (char*)malloc(localLen + 1);
+    int idx = 0;
+
+    for (int i = 0; i < localLen; i++) {
+        if (email[i] == '+') break;            
+        if (email[i] == '.') continue;         
+        local[idx++] = email[i];
+    }
+    local[idx] = '\0';
+
+    // build final normalized email
+    char* normalized = (char*)malloc(strlen(local) + 1 + strlen(domain) + 1);
+    sprintf(normalized, "%s@%s", local, domain);
+
+    free(local);
+    return normalized;
+}
+
+// check if email already exists in seen[]
+int isUnique(char** seen, int count, const char* email) {
+    for (int i = 0; i < count; i++) {
+        if (strcmp(seen[i], email) == 0) return 0; // not unique
+    }
+    return 1; // unique
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int numUniqueEmails(char ** emails, int emailsSize){
+    char** seen = (char**)malloc(emailsSize * sizeof(char*));
+    int count = 0;
+
+    for (int i = 0; i < emailsSize; i++) {
+        char* normalized = normalizeEmail(emails[i]);
+        if (isUnique(seen, count, normalized)) {
+            seen[count++] = normalized;
+        } else {
+            free(normalized); // discard duplicates
+        }
+    }
+
+    // Free memory (LeetCode doesn’t require it, but good practice)
+    for (int i = 0; i < count; i++) free(seen[i]);
+    free(seen);
+
+    return count;
+}
