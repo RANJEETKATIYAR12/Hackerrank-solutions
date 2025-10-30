@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Check if pattern 'pat' of length c exists in grid row 'grow' starting at column 'start' */
+int row_matches_at(const char *grow, const char *pat, int start, int c) {
+    /* Compare c characters starting at start */
+    return strncmp(grow + start, pat, c) == 0;
+}
+
+int main() {
+    int T;
+    if (scanf("%d", &T) != 1) return 0;
+
+    while (T--) {
+        int R, C;
+        scanf("%d %d", &R, &C);
+
+        /* allocate grid */
+        char **G = (char **)malloc(R * sizeof(char *));
+        for (int i = 0; i < R; ++i) {
+            G[i] = (char *)malloc((C + 1) * sizeof(char));
+            scanf("%s", G[i]); /* each row has no spaces, exactly C chars */
+        }
+
+        int r, c;
+        scanf("%d %d", &r, &c);
+
+        /* allocate pattern */
+        char **P = (char **)malloc(r * sizeof(char *));
+        for (int i = 0; i < r; ++i) {
+            P[i] = (char *)malloc((c + 1) * sizeof(char));
+            scanf("%s", P[i]);
+        }
+
+        int found = 0;
+
+        /* Try each possible starting row in G */
+        for (int i = 0; i <= R - r && !found; ++i) {
+            /* For each possible starting column in this row */
+            for (int j = 0; j <= C - c && !found; ++j) {
+                /* Check first pattern row quickly */
+                if (!row_matches_at(G[i], P[0], j, c)) continue;
+
+                /* Check remaining rows of the pattern */
+                int k;
+                for (k = 1; k < r; ++k) {
+                    if (!row_matches_at(G[i + k], P[k], j, c)) break;
+                }
+                if (k == r) {
+                    found = 1; /* full pattern matched */
+                }
+            }
+        }
+
+        if (found) printf("YES\n"); else printf("NO\n");
+
+        /* free memory */
+        for (int i = 0; i < R; ++i) free(G[i]);
+        free(G);
+        for (int i = 0; i < r; ++i) free(P[i]);
+        free(P);
+    }
+
+    return 0;
+}
