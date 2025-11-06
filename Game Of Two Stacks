@@ -1,0 +1,45 @@
+#include <stdio.h>
+
+int main() {
+    int g; // number of games
+    scanf("%d", &g);
+
+    while (g--) {
+        int n, m, x;
+        scanf("%d %d %d", &n, &m, &x);
+
+        int A[n], B[m];
+        for (int i = 0; i < n; i++) scanf("%d", &A[i]);
+        for (int i = 0; i < m; i++) scanf("%d", &B[i]);
+
+        long long sum = 0;
+        int i = 0, j = 0, maxCount = 0;
+
+        // Take from A as much as possible first
+        while (i < n && sum + A[i] <= x) {
+            sum += A[i];
+            i++;
+        }
+
+        maxCount = i;
+
+        // Now take from B one by one, remove from A if needed
+        while (j < m) {
+            sum += B[j];
+            j++;
+
+            // If sum exceeds x, remove from A's prefix
+            while (sum > x && i > 0) {
+                i--;
+                sum -= A[i];
+            }
+
+            if (sum <= x && i + j > maxCount)
+                maxCount = i + j;
+        }
+
+        printf("%d\n", maxCount);
+    }
+
+    return 0;
+}
